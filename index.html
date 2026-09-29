@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .card {
+            width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 10px;
+            background-color: #f4f4f4;
+        }
+        .card h3 {
+            margin: 0;
+            color: #333;
+        }
+        .card p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Health Care Dashboard</h1>
+
+    <div id="patients"></div>
+    <button onclick="logout()">Logout</button>
+
+    <script>
+        async function getPatients() {
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                window.location.href = 'login.html';  // Redirect to login if not logged in
+                return;
+            }
+
+            const doctorName = "doctor1";  // You can modify this based on logged-in user
+            const response = await fetch(`http://localhost:5001/api/doctor/${doctorName}/patients`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': token,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            const data = await response.json();
+            if (response.ok) {
+                const patientsDiv = document.getElementById('patients');
+                data.patients.forEach(patient => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `<h3>${patient.name}</h3><p>Patient ID: ${patient.patient_id}</p>`;
+                    patientsDiv.appendChild(card);
+                });
+            } else {
+                alert('Unable to fetch patients');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('jwt_token');
+            window.location.href = 'login.html';
+        }
+
+        getPatients();
+    </script>
+</body>
+</html>
